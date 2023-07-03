@@ -3,41 +3,41 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "Bird.generated.h"
+#include "SlashCharacter.generated.h"
 
-class UCapsuleComponent;
 class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class UGroomComponent;
 
 UCLASS()
-class SLASHTUTORIAL_API ABird : public APawn
+class SLASHTUTORIAL_API ASlashCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	ABird();
+	ASlashCharacter();
 	virtual void Tick(float DeltaTime) override;
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputMappingContext* BirdMappingContext;
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* SlashContext;
 
-	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = Input)
-	UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MovementAction;
 
-	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = Input)
+	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* LookAction;
 
 	// Legacy Input
 	void MoveForward(float Value);
+	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 
@@ -47,14 +47,14 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	UCapsuleComponent* Capsule;
-
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* BirdMesh;
-
-	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* ViewCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = Hair)
+	UGroomComponent* Hair;
+
+	UPROPERTY(VisibleAnywhere, Category = Hair)
+	UGroomComponent* Eyebrows;
 };
