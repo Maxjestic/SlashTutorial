@@ -52,7 +52,6 @@ void ASlashCharacter::BeginPlay()
 
 void ASlashCharacter::MoveForward(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Legacy Input"));
 	if (GetController() && Value != 0.f)
 	{
 		// find out which way is forward
@@ -67,7 +66,6 @@ void ASlashCharacter::MoveForward(float Value)
 
 void ASlashCharacter::MoveRight(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Legacy Input"));
 	if (GetController() && Value != 0.f)
 	{
 		// find out which way is right
@@ -127,19 +125,24 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	const bool LEGACY = false;
 	if (LEGACY)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Legacy Input"));
 		// Legacy Input
 		PlayerInputComponent->BindAxis(FName("MoveForward"), this, &ASlashCharacter::MoveForward);
 		PlayerInputComponent->BindAxis(FName("MoveRight"), this, &ASlashCharacter::MoveRight);
 		PlayerInputComponent->BindAxis(FName("Turn"), this, &ASlashCharacter::Turn);
 		PlayerInputComponent->BindAxis(FName("LookUp"), this, &ASlashCharacter::LookUp);
+
+		PlayerInputComponent->BindAction(FName("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Enhanced Input"));
 		// Enhanced Input
 		if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 		{
 			EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		}
 	}
 }

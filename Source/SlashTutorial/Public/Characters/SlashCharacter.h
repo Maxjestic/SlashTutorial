@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* JumpAction;
+
 	// Legacy Input
 	void MoveForward(float Value);
 	void MoveRight(float Value);
