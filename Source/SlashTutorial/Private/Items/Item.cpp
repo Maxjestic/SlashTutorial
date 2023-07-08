@@ -4,6 +4,7 @@
 #include "Items/Item.h"
 #include "Components/SphereComponent.h"
 #include "SlashTutorial/DebugMacros.h"
+#include "Characters/SlashCharacter.h"
 
 
 // Sets default values
@@ -38,19 +39,19 @@ float AItem::TransformedCos()
 
 void AItem::OnSphereBeginOvelrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const FString OverlapMessage = FString("Begining overlap with: ") + OtherActor->GetName();
-	if (GEngine)
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OverlapMessage);
+		SlashCharacter->SetOverlappingItem(this);
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	const FString OverlapMessage = FString("Ending overlap with: ") + OtherActor->GetName();
-	if (GEngine)
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, OverlapMessage);
+		SlashCharacter->SetOverlappingItem(nullptr);
 	}
 }
 
@@ -59,6 +60,6 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	RunningTime += DeltaTime;
 
-	float RotateSpeed = 50.f;
-	AddActorWorldRotation(FRotator(0.f, DeltaTime * RotateSpeed, 0.f));
+	//float RotateSpeed = 50.f;
+	//AddActorWorldRotation(FRotator(0.f, DeltaTime * RotateSpeed, 0.f));
 }
