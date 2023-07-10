@@ -14,6 +14,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
+class AWeapon;
 
 UCLASS()
 class SLASHTUTORIAL_API ASlashCharacter : public ACharacter
@@ -43,21 +44,57 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* EKeyAction;
 
-	// Legacy Input
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* AttackAction;
+
+	/**
+	* Legacy Input Callbacks
+	*/
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 
-	// Enhanced Input
+	/**
+	* Enhanced Input functions	
+	*/
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
-	// Both Inputs
+	/**
+	* Action Input	
+	*/
 	void EKeyPressed();
+	void Attack();
+
+	/**
+	*  Play montage functions
+	*/
+	void PlayAttackMontage();
+
+	UFUNCTION(BluePrintCallable)
+	void AttackEnd();
+	bool CanAttack();
+
+	void PlayEquipMontage(FName SectionName);
+	bool CanDisarm();
+	bool CanArm();
+
+	UFUNCTION(BluePrintCallable)
+	void Disarm();
+
+	UFUNCTION(BluePrintCallable)
+	void Arm();
+
+	UFUNCTION(BluePrintCallable)
+	void FinishEquipping();
 
 private:
+	UPROPERTY(VisibleAnywhere)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
+	UPROPERTY(BluePrintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
@@ -73,6 +110,18 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	AWeapon* EquippedWeapon;
+
+	/**
+	* Animation montages
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* EquipMontage;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }

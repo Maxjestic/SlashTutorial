@@ -60,6 +60,11 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	RunningTime += DeltaTime;
 
-	//float RotateSpeed = 50.f;
-	//AddActorWorldRotation(FRotator(0.f, DeltaTime * RotateSpeed, 0.f));
+	if (ItemState == EItemState::EIS_Hovering)
+	{
+		AddActorWorldOffset(FVector(0.f, 0.f, TransformedSin()));
+
+		const float RotateSpeed = 50.f;
+		AddActorWorldRotation(FRotator(0.f, DeltaTime * RotateSpeed, 0.f));
+	}
 }

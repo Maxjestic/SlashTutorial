@@ -6,6 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+enum class EItemState : uint8
+{
+	EIS_Hovering,
+	EIS_Equipped
+};
+
 UCLASS()
 class SLASHTUTORIAL_API AItem : public AActor
 {
@@ -19,10 +25,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
-		float Amplitude = 0.25f;
+	float Amplitude = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
-		float TimeConstant = 5.f;
+	float TimeConstant = 5.f;
+
+	UPROPERTY(VisibleAnywhere)
+	class USphereComponent* OverlapSphere;
 
 	UFUNCTION(BlueprintPure)
 	float TransformedSin();
@@ -42,12 +51,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ItemMesh;
 
+	EItemState ItemState = EItemState::EIS_Hovering;
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime = 0.f;
-
-	UPROPERTY(VisibleAnywhere)
-	class USphereComponent* OverlapSphere;
 };
 
 template<typename T>
