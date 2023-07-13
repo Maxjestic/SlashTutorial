@@ -20,10 +20,18 @@ public:
 
 	virtual void GetHit(const FVector& ImpactPoint) override;
 
+	void DirectionalHitReact(const FVector& ImpactPoint);
+
 	/**
 	*  Play montage functions
 	*/
 	void PlayHitReactMontage(const FName& SectionName);
+
+	UPROPERTY(EditAnywhere, Category = Sounds)
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = VisualEffects)
+	UParticleSystem* HitParticles;
 
 protected:
 	virtual void BeginPlay() override;
