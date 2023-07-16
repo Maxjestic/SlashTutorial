@@ -33,4 +33,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Breakable Properties")
 	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
+
+	UFUNCTION()
+	virtual void OnChaosBreak(const FChaosBreakEvent& BreakEvent);
+
+	bool bBroken = false;
 };

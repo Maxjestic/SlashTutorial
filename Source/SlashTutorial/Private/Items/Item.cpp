@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "SlashTutorial/DebugMacros.h"
 #include "Characters/SlashCharacter.h"
+#include "NiagaraComponent.h"
 
 
 // Sets default values
@@ -17,6 +18,9 @@ AItem::AItem()
 
 	OverlapSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	OverlapSphere->SetupAttachment(GetRootComponent());
+
+	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	EmbersEffect->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()
