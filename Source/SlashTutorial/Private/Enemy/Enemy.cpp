@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/AttributeComponent.h"
 #include "HUD/HealthBarComponent.h"
+#include "GameFrameWork/CharacterMovementComponent.h"
+#include "AIController.h"
 
 AEnemy::AEnemy()
 {
@@ -25,6 +27,10 @@ AEnemy::AEnemy()
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBar"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
 
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
@@ -45,6 +51,47 @@ void AEnemy::BeginPlay()
 	{
 		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
 		HealthBarWidget->SetVisibility(false);
+	}
+}
+
+void AEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (CombatTarget)
+	{
+		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Length();
+		if (DistanceToTarget > CombatRadius)
+		{
+			CombatTarget = nullptr;
+			if (HealthBarWidget)
+			{
+				HealthBarWidget->SetVisibility(false);
+			}
+		}
+	}
+	
+	if (!bIsNavPathSet)
+	{
+		EnemyController = Cast<AAIController>(GetController());
+		if (EnemyController && PatrolTarget)
+		{
+			FAIMoveRequest MoveRequest;
+			MoveRequest.SetGoalActor(PatrolTarget);
+			MoveRequest.SetAcceptanceRadius(15.f);
+			FNavPathSharedPtr NavPath;
+			EnemyController->MoveTo(MoveRequest, &NavPath);
+			if (NavPath)
+			{
+				bIsNavPathSet = true;
+				TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
+				for (auto& Point : PathPoints)
+				{
+					const FVector& Location = Point.Location;
+					DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
+				}
+			}
+		}
 	}
 }
 
@@ -94,24 +141,6 @@ void AEnemy::Die()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetLifeSpan(3.f);
-}
-
-void AEnemy::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (CombatTarget)
-	{
-		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Length();
-		if (DistanceToTarget > CombatRadius)
-		{
-			CombatTarget = nullptr;
-			if (HealthBarWidget)
-			{
-				HealthBarWidget->SetVisibility(false);
-			}
-		}
-	}
 }
 
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
