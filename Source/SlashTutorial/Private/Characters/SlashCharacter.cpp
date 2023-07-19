@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Characters/SlashCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -8,7 +9,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "GroomComponent.h"
-#include "Characters/SlashCharacter.h"
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
@@ -52,6 +52,8 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+
+	Tags.Add(FName("SlashCharacter"));
 }
 
 void ASlashCharacter::Tick(float DeltaTime)

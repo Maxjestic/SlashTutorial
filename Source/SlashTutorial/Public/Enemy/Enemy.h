@@ -6,7 +6,6 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "Characters/CharacterTypes.h"
-
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -35,6 +34,8 @@ protected:
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
+	UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
 
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
@@ -44,17 +45,26 @@ protected:
 	*/
 	void PlayHitReactMontage(const FName& SectionName);
 private:
-	UPROPERTY(VisibleAnywhere)
-	class UAttributeComponent* Attributes;
-
-	UPROPERTY(VisibleAnywhere)
-	class UHealthBarComponent* HealthBarWidget;
-
 	UPROPERTY(EditAnywhere, Category = Sounds)
 	USoundBase* HitSound;
 
 	UPROPERTY(EditAnywhere, Category = VisualEffects)
 	UParticleSystem* HitParticles;
+
+	UPROPERTY(EditAnywhere)
+	double CombatRadius = 500.f;
+
+	UPROPERTY(EditAnywhere)
+	double PatrolRadius = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	double AttackRadius = 150.f;
+
+	UPROPERTY(EditAnywhere)
+	float WalkSpeed = 140.f;
+
+	UPROPERTY(EditAnywhere)
+	float RunSpeed = 300.f;
 
 	FTimerHandle PatrolTimer;
 
@@ -63,11 +73,28 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float WaitTimeMax = 10.f;
+
 	void PatrolTimerFinished();
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+
+	/**
+	*  Components
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	class UAttributeComponent* Attributes;
+
+	UPROPERTY(VisibleAnywhere)
+	class UHealthBarComponent* HealthBarWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	class UPawnSensingComponent* PawnSensing;
 
 	/**
 	* Navigation
 	*/
+
 	UPROPERTY()
 	class AAIController* EnemyController;
 
@@ -83,6 +110,7 @@ private:
 	/**
 	* Animation montages
 	*/
+
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitReactMontage;
 
@@ -91,12 +119,6 @@ private:
 
 	UPROPERTY()
 	AActor* CombatTarget;
-
-	UPROPERTY(EditAnywhere)
-	double CombatRadius = 500.f;
-
-	UPROPERTY(EditAnywhere)
-	double PatrolRadius = 200.f;
 
 public:	
 
