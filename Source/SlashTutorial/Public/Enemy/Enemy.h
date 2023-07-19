@@ -3,13 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h"
+#include "Characters/BaseCharacter.h"
 #include "Characters/CharacterTypes.h"
+// Generated - must be last
 #include "Enemy.generated.h"
 
+class UHealthBarComponent;
+class UPawnSensingComponent;
+class AAIController;
+
 UCLASS()
-class SLASHTUTORIAL_API AEnemy : public ACharacter, public IHitInterface
+class SLASHTUTORIAL_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -23,14 +27,12 @@ public:
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
-	void DirectionalHitReact(const FVector& ImpactPoint);
-
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	void Die();
+	virtual void Die() override;
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
@@ -40,17 +42,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
 
-	/**
-	*  Play montage functions
-	*/
-	void PlayHitReactMontage(const FName& SectionName);
 private:
-	UPROPERTY(EditAnywhere, Category = Sounds)
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category = VisualEffects)
-	UParticleSystem* HitParticles;
-
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 500.f;
 
@@ -83,20 +75,17 @@ private:
 	*/
 
 	UPROPERTY(VisibleAnywhere)
-	class UAttributeComponent* Attributes;
+	UHealthBarComponent* HealthBarWidget;
 
 	UPROPERTY(VisibleAnywhere)
-	class UHealthBarComponent* HealthBarWidget;
-
-	UPROPERTY(VisibleAnywhere)
-	class UPawnSensingComponent* PawnSensing;
+	UPawnSensingComponent* PawnSensing;
 
 	/**
 	* Navigation
 	*/
 
 	UPROPERTY()
-	class AAIController* EnemyController;
+	AAIController* EnemyController;
 
 	// Current patrol target
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
@@ -106,16 +95,6 @@ private:
 	TArray<AActor*> PatrolTargets;
 
 	bool bIsNavPathSet = false; //NavPath Bug - Only for testing
-
-	/**
-	* Animation montages
-	*/
-
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* HitReactMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* DeathMontage;
 
 	UPROPERTY()
 	AActor* CombatTarget;
