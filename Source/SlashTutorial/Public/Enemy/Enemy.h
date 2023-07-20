@@ -24,7 +24,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void CheckPatrolTarget();
 	void CheckCombatTarget();
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Destroyed() override;
@@ -36,39 +35,24 @@ protected:
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
+	virtual void Attack() override;
+	virtual bool CanAttack() override;
+	virtual void HandleDamage(float DamageAmount) override;
+	virtual int32 PlayDeathMontage() override;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float DeathLifeSpan = 8.f;
+
 	UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose = EDeathPose::EDP_Alive;
+	TEnumAsByte<EDeathPose> DeathPose;
+
+	UPROPERTY(BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 private:
-	UPROPERTY(EditAnywhere)
-	double CombatRadius = 500.f;
-
-	UPROPERTY(EditAnywhere)
-	double PatrolRadius = 200.f;
-
-	UPROPERTY(EditAnywhere)
-	double AttackRadius = 150.f;
-
-	UPROPERTY(EditAnywhere)
-	float WalkSpeed = 140.f;
-
-	UPROPERTY(EditAnywhere)
-	float RunSpeed = 300.f;
-
-	FTimerHandle PatrolTimer;
-
-	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float WaitTimeMin = 5.f;
-
-	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float WaitTimeMax = 10.f;
-
-	void PatrolTimerFinished();
-
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 	/**
 	*  Components
@@ -90,6 +74,24 @@ private:
 	UPROPERTY()
 	AAIController* EnemyController;
 
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitTimeMin = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitTimeMax = 10.f;
+
+	UPROPERTY(EditAnywhere)
+	double CombatRadius = 500.f;
+
+	UPROPERTY(EditAnywhere)
+	double PatrolRadius = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	double AttackRadius = 130.f;
+
+	UPROPERTY(EditAnywhere)
+	double AcceptanceRadius = 50.f;
+
 	// Current patrol target
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	AActor* PatrolTarget;
@@ -97,10 +99,44 @@ private:
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<AActor*> PatrolTargets;
 
-	bool bIsNavPathSet = false; //NavPath Bug - Only for testing
-
 	UPROPERTY()
 	AActor* CombatTarget;
+
+	/** AI behavior */
+	void HideHealthBar();
+	void ShowHealthBar();
+	void LoseIntrest();
+	void StartPatrolling();
+	void ChaseTarget();
+	bool IsOutsideCombatRadius();
+	bool IsOutsideAttackRadius();
+	bool IsInsideAttackRadius();
+	bool IsDead();
+	bool IsChasing();
+	bool IsAttacking();
+	bool IsEngaged();
+	void PatrolTimerFinished();
+	void ClearPatrolTimer();
+
+	FTimerHandle PatrolTimer;
+
+	/** Combat*/
+	void StartAttackTimer();
+	void ClearAttackTimer();
+
+	FTimerHandle AttackTimer;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackTimeMin = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float AttackTimeMax = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float PatrollingSpeed = 140.f;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float ChasingSpeed = 300.f;
 
 public:	
 
