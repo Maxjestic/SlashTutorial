@@ -32,10 +32,33 @@ void AWeapon::BeginPlay()
 
 void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
 {
+	ItemState = EItemState::EIS_Equipped;
 	SetOwner(NewOwner);
 	SetInstigator(NewInstigator);
 	AttachMeshToSocket(InParent, InSocketName);
-	ItemState = EItemState::EIS_Equipped;
+	DisableSphereCollision();
+	PlayEquipSound();
+	DeactivateEmbers();
+}
+
+void AWeapon::DeactivateEmbers()
+{
+	if (EmbersEffect)
+	{
+		EmbersEffect->Deactivate();
+	}
+}
+
+void AWeapon::DisableSphereCollision()
+{
+	if (OverlapSphere)
+	{
+		OverlapSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+}
+
+void AWeapon::PlayEquipSound()
+{
 	if (EquipSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(
@@ -43,14 +66,6 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOw
 			EquipSound,
 			this->GetActorLocation()
 		);
-	}
-	if (OverlapSphere)
-	{
-		OverlapSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-	if (EmbersEffect)
-	{
-		EmbersEffect->Deactivate();
 	}
 }
 
@@ -60,60 +75,62 @@ void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName& InSocke
 	ItemMesh->AttachToComponent(InParent, TransformRules, InSocketName);
 }
 
-void AWeapon::OnSphereBeginOvelrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	Super::OnSphereBeginOvelrap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-}
-
-void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	Super::OnSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
-}
-
 void AWeapon::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsActorSameType(OtherActor)) return;
+
+	FHitResult BoxHit;
+	BoxTrace(BoxHit);
+
+	if (BoxHit.GetActor())
+	{
+		if (IsActorSameType(BoxHit.GetActor())) return;
+
+		UGameplayStatics::ApplyDamage(BoxHit.GetActor(), Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
+		ExecuteGetHit(BoxHit);
+		CreateFields(BoxHit.ImpactPoint);
+	}
+}
+
+bool AWeapon::IsActorSameType(AActor* OtherActor)
+{
+	return (GetOwner()->ActorHasTag(TEXT("Enemy")) && OtherActor->ActorHasTag(TEXT("Enemy")));
+}
+
+void AWeapon::ExecuteGetHit(FHitResult& BoxHit)
+{
+	IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
+	if (HitInterface)
+	{
+		HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
+	}
+}
+
+void AWeapon::BoxTrace(FHitResult& BoxHit)
 {
 	const FVector Start = BoxTraceStart->GetComponentLocation();
 	const FVector End = BoxTraceEnd->GetComponentLocation();
 
-	//TArray<AActor*> ActorsToIgnore;
-	//ActorsToIgnore.Add(this);
-	//
-	//for (AActor* Actor : IgnoreActors)
-	//{
-	//	ActorsToIgnore.AddUnique(Actor);
-	//}
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
 
-	FHitResult BoxHit;
+	for (AActor* Actor : IgnoreActors)
+	{
+		ActorsToIgnore.AddUnique(Actor);
+	}
+
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
 		Start,
 		End,
-		FVector(5.f, 5.f, 5.f),
+		BoxTraceExtent,
 		BoxTraceStart->GetComponentRotation(),
 		ETraceTypeQuery::TraceTypeQuery1,
 		false,
-		IgnoreActors,
-		EDrawDebugTrace::None,
+		ActorsToIgnore,
+		bShowBoxDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
 		BoxHit,
 		true
 	);
-
-	if (BoxHit.GetActor())
-	{
-		UGameplayStatics::ApplyDamage(BoxHit.GetActor(),
-									  Damage,
-									  GetInstigator()->GetController(),
-									  this,
-									  UDamageType::StaticClass()
-		);
-
-		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
-		if (HitInterface)
-		{
-			HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
-		}
-		IgnoreActors.AddUnique(BoxHit.GetActor());
-
-		CreateFields(BoxHit.ImpactPoint);
-	}
+	IgnoreActors.AddUnique(BoxHit.GetActor());
 }

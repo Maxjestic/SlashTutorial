@@ -31,7 +31,6 @@ public:
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	/** </IHitInterface> */
 
-
 protected:
 	/** <AActor */
 	virtual void BeginPlay() override;
