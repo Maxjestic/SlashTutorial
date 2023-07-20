@@ -14,6 +14,20 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+}
+
+void ABaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+void ABaseCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
 void ABaseCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
@@ -25,41 +39,20 @@ void ABaseCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collision
 	}
 }
 
-void ABaseCharacter::BeginPlay()
+bool ABaseCharacter::CanAttack()
 {
-	Super::BeginPlay();
-	
+	return false;
 }
 
 void ABaseCharacter::Attack()
 {
 }
 
-void ABaseCharacter::Die()
+void ABaseCharacter::HandleDamage(float DamageAmount)
 {
-}
-
-bool ABaseCharacter::CanAttack()
-{
-	return false;
-}
-
-bool ABaseCharacter::IsAlive()
-{
-	return Attributes && Attributes->IsAlive();
-}
-
-void ABaseCharacter::AttackEnd()
-{
-}
-
-void ABaseCharacter::PlayHitReactMontage(const FName& SectionName)
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && HitReactMontage)
+	if (Attributes)
 	{
-		AnimInstance->Montage_Play(HitReactMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+		Attributes->ReceiveDamage(DamageAmount);
 	}
 }
 
@@ -107,6 +100,10 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	PlayHitReactMontage(Section);
 }
 
+void ABaseCharacter::Die()
+{
+}
+
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
 {
 	if (HitSound)
@@ -131,12 +128,38 @@ void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
 	}
 }
 
-void ABaseCharacter::HandleDamage(float DamageAmount)
+void ABaseCharacter::DisableCapsule()
 {
-	if (Attributes)
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+bool ABaseCharacter::IsAlive()
+{
+	return Attributes && Attributes->IsAlive();
+}
+
+void ABaseCharacter::PlayHitReactMontage(const FName& SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
 	{
-		Attributes->ReceiveDamage(DamageAmount);
+		AnimInstance->Montage_Play(HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
 	}
+}
+
+int32 ABaseCharacter::PlayAttackMontage()
+{
+	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
+}
+
+int32 ABaseCharacter::PlayDeathMontage()
+{
+	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+}
+
+void ABaseCharacter::AttackEnd()
+{
 }
 
 void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& SectionName)
@@ -157,25 +180,4 @@ int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* Montage, const TArr
 	const int32 SectionIndex = FMath::RandRange(0, MaxSectionIndex);
 	PlayMontageSection(Montage, SectionNames[SectionIndex]);
 	return SectionIndex;
-}
-
-int32 ABaseCharacter::PlayAttackMontage()
-{
-	return PlayRandomMontageSection(AttackMontage, AttackMontageSections);
-}
-
-int32 ABaseCharacter::PlayDeathMontage()
-{
-	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
-}
-
-void ABaseCharacter::DisableCapsule()
-{
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }

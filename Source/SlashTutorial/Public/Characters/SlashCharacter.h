@@ -6,7 +6,7 @@
 #include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
-// Generated - must be last
+// Generated
 #include "SlashCharacter.generated.h"
 
 class UInputMappingContext;
@@ -23,12 +23,51 @@ class SLASHTUTORIAL_API ASlashCharacter : public ABaseCharacter
 
 public:
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
+
+	/** <APawn> */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	/** </APawn> */
 
 protected:
-	virtual void BeginPlay() override;
 
+	/** <AActor> */
+	virtual void BeginPlay() override;
+	/** </AActor> */
+
+	/** Legacy Input Callbacks */
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void Turn(float Value);
+	void LookUp(float Value);
+
+	/** Enhanced Input functions */
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+	/** Action Input functions for both Legacy and Enhanced Input */
+	void EKeyPressed();
+	virtual void Attack() override;
+
+	/** Combat */
+	void EquipWeapon(AWeapon* Weapon);
+	virtual bool CanAttack() override;
+	virtual void AttackEnd() override;
+	bool CanDisarm();
+	bool CanArm();
+	void Disarm();
+	void Arm();
+	void PlayEquipMontage(const FName& SectionName);
+
+	UFUNCTION(BluePrintCallable)
+	void AttachWeaponToBack();
+
+	UFUNCTION(BluePrintCallable)
+	void AttachWeaponToHand();
+
+	UFUNCTION(BluePrintCallable)
+	void FinishEquipping();
+
+	/** Enhanced Input Properties */
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SlashContext;
 
@@ -46,52 +85,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
-
-	/**
-	* Legacy Input Callbacks
-	*/
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-	void Turn(float Value);
-	void LookUp(float Value);
-
-	/**
-	* Enhanced Input functions	
-	*/
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-
-	/**
-	* Action Input	
-	*/
-	void EKeyPressed();
-	virtual void Attack() override;
-
-	/**
-	*  Play montage functions
-	*/
-	virtual bool CanAttack() override;
-	virtual void AttackEnd() override;
-	void PlayEquipMontage(const FName& SectionName);
-	bool CanDisarm();
-	bool CanArm();
-
-	UFUNCTION(BluePrintCallable)
-	void Disarm();
-
-	UFUNCTION(BluePrintCallable)
-	void Arm();
-
-	UFUNCTION(BluePrintCallable)
-	void FinishEquipping();
-
 private:
-	UPROPERTY(VisibleAnywhere)
-	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
-
-	UPROPERTY(BluePrintReadWrite, meta = (AllowPrivateAccess = "true"))
-	EActionState ActionState = EActionState::EAS_Unoccupied;
-
+	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
@@ -107,12 +102,14 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
-	/**
-	* Animation montages
-	*/
-
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
+	UPROPERTY(BluePrintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }

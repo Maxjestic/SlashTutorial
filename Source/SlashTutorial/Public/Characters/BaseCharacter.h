@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
-// Generated - must be last
+// Generated
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
@@ -17,41 +17,56 @@ class SLASHTUTORIAL_API ABaseCharacter : public ACharacter, public IHitInterface
 
 public:
 	ABaseCharacter();
+
+	/** <AActor> */
 	virtual void Tick(float DeltaTime) override;
+	/** </AActor> */
 
-
-	UFUNCTION(BluePrintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 protected:
+	/** <AActor> */
 	virtual void BeginPlay() override;
-	virtual void Attack();
-	virtual void Die();
-
-	void PlayHitReactMontage(const FName& SectionName);
-	void DirectionalHitReact(const FVector& ImpactPoint);
-	void PlayHitSound(const FVector& ImpactPoint);
-	void SpawnHitParticles(const FVector& ImpactPoint);
-	virtual void HandleDamage(float DamageAmount);
-	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
-	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
-	virtual int32 PlayAttackMontage();
-	virtual int32 PlayDeathMontage();
-	void DisableCapsule();
+	/** </AActor> */
 
 	virtual bool CanAttack();
+	virtual void Attack();
+	virtual void HandleDamage(float DamageAmount);
+	void DirectionalHitReact(const FVector& ImpactPoint);
+	virtual void Die();
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+	void DisableCapsule();
 	virtual bool IsAlive();
+	void PlayHitReactMontage(const FName& SectionName);
+	virtual int32 PlayAttackMontage();
+	virtual int32 PlayDeathMontage();
 
 	UFUNCTION(BluePrintCallable)
 	virtual void AttackEnd();
 
+	UFUNCTION(BluePrintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 	AWeapon* EquippedWeapon;
 
-	/**
-	* Animation montages
-	*/
+	UPROPERTY(VisibleAnywhere)
+	class UAttributeComponent* Attributes;
+
+private:
+	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
+	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
+
+	UPROPERTY(EditAnywhere, Category = Sounds)
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = VisualEffects)
+	UParticleSystem* HitParticles;
+
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TArray<FName> AttackMontageSections;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitReactMontage;
@@ -60,22 +75,6 @@ protected:
 	UAnimMontage* DeathMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
-	TArray<FName> AttackMontageSections;
-
-	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> DeathMontageSections;
-	/**
-	*  Components
-	*/
-
-	UPROPERTY(VisibleAnywhere)
-	class UAttributeComponent* Attributes;
-
-private:
-	UPROPERTY(EditAnywhere, Category = Sounds)
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category = VisualEffects)
-	UParticleSystem* HitParticles;
 
 };
