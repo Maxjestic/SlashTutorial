@@ -101,8 +101,9 @@ bool AEnemy::CanAttack()
 
 void AEnemy::Attack()
 {
-	EnemyState = EEnemyState::EES_Engaged;
 	Super::Attack();
+	if (CombatTarget == nullptr) return;
+	EnemyState = EEnemyState::EES_Engaged;
 	PlayAttackMontage();
 }
 
@@ -123,25 +124,14 @@ void AEnemy::HandleDamage(float DamageAmount)
 
 void AEnemy::Die()
 {
+	Super::Die();
 	EnemyState = EEnemyState::EES_Dead;
-	PlayDeathMontage();
 	ClearAttackTimer();
 	HideHealthBar();
 	DisableCapsule();
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-int32 AEnemy::PlayDeathMontage()
-{
-	const int32 SectionIndex = Super::PlayDeathMontage();
-	TEnumAsByte<EDeathPose> Pose(SectionIndex);
-	if (EDeathPose::EDP_Death1 <= Pose && Pose < EDeathPose::EDP_MAX)
-	{
-		DeathPose = Pose;
-	}
-	return SectionIndex;
 }
 
 void AEnemy::InitializeEnemy()
@@ -270,7 +260,8 @@ void AEnemy::PawnSeen(APawn* SeenPawn)
 		EnemyState < EEnemyState::EES_Attacking &&
 		EnemyState != EEnemyState::EES_Chasing &&
 		EnemyState != EEnemyState::EES_Dead &&
-		SeenPawn->ActorHasTag(FName("EngageableTarget"));
+		SeenPawn->ActorHasTag(FName("EngageableTarget")) &&
+		!SeenPawn->ActorHasTag(DeadTag);
 
 	if (bShouldChaseTarget)
 	{

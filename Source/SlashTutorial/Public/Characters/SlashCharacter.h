@@ -15,6 +15,7 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
+class USlashOverlay;
 class AItem;
 class AController;
 
@@ -30,6 +31,10 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	/** </APawn> */
 
+	/** <ACharacter*/
+	virtual void Jump() override;
+	/** </ACharacter*/
+
 	/** <AActor> */
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	/** </AActor> */
@@ -37,6 +42,7 @@ public:
 	/** <IHitInterface> */
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </IHitInterface> */
+
 protected:
 
 	/** <AActor> */
@@ -61,13 +67,12 @@ protected:
 	/** </ABaseCharacter> */
 
 	/** Combat */
-	void EquipWeapon(AWeapon* Weapon);
-
 	/** <ABaseCharacter> */
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
+	virtual void Die() override;
 	/** </ABaseCharacter> */
-
+	void EquipWeapon(AWeapon* Weapon);
 	bool CanDisarm();
 	bool CanArm();
 	void Disarm();
@@ -104,7 +109,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
+
 private:
+	bool IsUnoccupied();
+	void InitializeSlashOverlay();
+	void SetHUDHealth();
+
 	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
@@ -130,7 +140,11 @@ private:
 	UPROPERTY(BluePrintReadWrite, meta = (AllowPrivateAccess = "true"))
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 
+	UPROPERTY()
+	USlashOverlay* SlashOverlay;
+
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 };
