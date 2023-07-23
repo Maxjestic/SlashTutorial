@@ -29,7 +29,7 @@ public:
 	/** </APawn> */
 
 	/** <IHitInterface> */
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </IHitInterface> */
 protected:
 
@@ -69,6 +69,9 @@ protected:
 
 	UFUNCTION(BluePrintCallable)
 	void FinishEquipping();
+
+	UFUNCTION(BluePrintCallable)
+	void HitReactEnd();
 
 	/** Enhanced Input Properties */
 	UPROPERTY(EditAnywhere, Category = Input)
