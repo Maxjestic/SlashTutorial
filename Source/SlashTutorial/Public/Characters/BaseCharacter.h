@@ -9,6 +9,7 @@
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
+class UAttributeComponent;
 
 UCLASS()
 class SLASHTUTORIAL_API ABaseCharacter : public ACharacter, public IHitInterface
@@ -61,7 +62,7 @@ protected:
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY(VisibleAnywhere)
-	class UAttributeComponent* Attributes;
+	UAttributeComponent* Attributes;
 
 	UPROPERTY(BlueprintReadOnly, Category = Combat)
 	AActor* CombatTarget;

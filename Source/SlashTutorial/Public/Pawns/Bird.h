@@ -10,6 +10,7 @@
 class UCapsuleComponent;
 class UInputMappingContext;
 class UInputAction;
+class UInputComponent;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -22,7 +23,7 @@ public:
 	ABird();
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 protected:
 	virtual void BeginPlay() override;

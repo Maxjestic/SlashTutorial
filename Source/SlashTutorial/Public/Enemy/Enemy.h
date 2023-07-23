@@ -12,6 +12,7 @@ class UHealthBarComponent;
 class UPawnSensingComponent;
 class AAIController;
 class AWeapon;
+class AController;
 
 UCLASS()
 class SLASHTUTORIAL_API AEnemy : public ABaseCharacter
@@ -23,7 +24,7 @@ public:
 
 	/** <AActor> */
 	virtual void Tick(float DeltaTime) override;
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Destroyed() override;
 	/** </AActor> */
 
@@ -36,14 +37,14 @@ protected:
 	virtual void BeginPlay() override;
 	/** </AActor */
 
-	/** <BaseCharacter> */
+	/** <ABaseCharacter> */
 	virtual bool CanAttack() override;
 	virtual void Attack() override;
 	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
 	virtual void Die() override;
 	virtual int32 PlayDeathMontage() override;
-	/** </BaseCharacter> */	
+	/** </ABaseCharacter> */	
 
 	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<EDeathPose> DeathPose;

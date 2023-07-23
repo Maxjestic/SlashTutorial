@@ -7,9 +7,9 @@
 #include "CharacterTypes.h"
 #include "SlashAnimInstance.generated.h"
 
-/**
- * 
- */
+class ASlashCharacter;
+class UCharacterMovementComponent;
+
 UCLASS()
 class SLASHTUTORIAL_API USlashAnimInstance : public UAnimInstance
 {
@@ -20,10 +20,10 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	class ASlashCharacter* SlashCharacter;
+	ASlashCharacter* SlashCharacter;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
-	class UCharacterMovementComponent* SlashCharacterMovement;
+	UCharacterMovementComponent* SlashCharacterMovement;
 
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float GroundSpeed;

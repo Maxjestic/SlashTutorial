@@ -10,11 +10,13 @@
 #include "SlashCharacter.generated.h"
 
 class UInputMappingContext;
+class UInputComponent;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
+class AController;
 
 UCLASS()
 class SLASHTUTORIAL_API ASlashCharacter : public ABaseCharacter
@@ -25,8 +27,12 @@ public:
 	ASlashCharacter();
 
 	/** <APawn> */
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	/** </APawn> */
+
+	/** <AActor> */
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	/** </AActor> */
 
 	/** <IHitInterface> */
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
@@ -49,12 +55,19 @@ protected:
 
 	/** Action Input functions for both Legacy and Enhanced Input */
 	void EKeyPressed();
+
+	/** <ABaseCharacter> */
 	virtual void Attack() override;
+	/** </ABaseCharacter> */
 
 	/** Combat */
 	void EquipWeapon(AWeapon* Weapon);
+
+	/** <ABaseCharacter> */
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
+	/** </ABaseCharacter> */
+
 	bool CanDisarm();
 	bool CanArm();
 	void Disarm();

@@ -6,9 +6,8 @@
 #include "Components/WidgetComponent.h"
 #include "HealthBarComponent.generated.h"
 
-/**
- * 
- */
+class UHealthBar;
+
 UCLASS()
 class SLASHTUTORIAL_API UHealthBarComponent : public UWidgetComponent
 {
@@ -19,5 +18,5 @@ public:
 
 private:
 	UPROPERTY()
-	class UHealthBar* HealthBarWidget;
+	UHealthBar* HealthBarWidget;
 };

@@ -8,6 +8,8 @@
 #include "BreakableActor.generated.h"
 
 class UGeometryCollectionComponent;
+class UCapsuleComponent;
+class ATreasure;
 
 UCLASS()
 class SLASHTUTORIAL_API ABreakableActor : public AActor, public IHitInterface
@@ -27,12 +29,12 @@ protected:
 	UGeometryCollectionComponent* GeometryCollection;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class UCapsuleComponent* Capsule;
+	UCapsuleComponent* Capsule;
 
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Breakable Properties")
-	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
+	TArray<TSubclassOf<ATreasure>> TreasureClasses;
 
 	UFUNCTION()
 	virtual void OnChaosBreak(const FChaosBreakEvent& BreakEvent);

@@ -6,9 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "HealthBar.generated.h"
 
-/**
- * 
- */
+class UProgressBar;
+
 UCLASS()
 class SLASHTUTORIAL_API UHealthBar : public UUserWidget
 {
@@ -16,5 +15,5 @@ class SLASHTUTORIAL_API UHealthBar : public UUserWidget
 	
 public:
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* HealthBar;
+	UProgressBar* HealthBar;
 };
