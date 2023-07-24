@@ -15,6 +15,12 @@ void UAttributeComponent::BeginPlay()
 	
 }
 
+void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+}
+
 void UAttributeComponent::ReceiveDamage(float Damage)
 {
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
@@ -30,9 +36,13 @@ bool UAttributeComponent::IsAlive() const
 	return CurrentHealth > 0.f;
 }
 
-void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAttributeComponent::AddGold(int32 Amount)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Gold += Amount;
+}
 
+void UAttributeComponent::AddSouls(int32 Amount)
+{
+	Souls += Amount;
 }
 
