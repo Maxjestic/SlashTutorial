@@ -13,6 +13,7 @@ class UPawnSensingComponent;
 class AAIController;
 class AWeapon;
 class AController;
+class ASoul;
 
 UCLASS()
 class SLASHTUTORIAL_API AEnemy : public ABaseCharacter
@@ -66,6 +67,7 @@ private:
 	void HideHealthBar();
 	void ShowHealthBar();
 	void MoveToTarget(AActor* Target);
+	void SpawnSoul();
 	bool IsDead();
 	bool IsChasing();
 	bool IsAttacking();
@@ -134,6 +136,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float DeathLifeSpan = 8.f;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TSubclassOf<ASoul> SoulClass;
 
 	FTimerHandle BeginTimer;
 	float BeginWaitTime = .5f;

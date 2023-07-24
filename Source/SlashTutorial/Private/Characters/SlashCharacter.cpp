@@ -22,7 +22,7 @@
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -73,8 +73,7 @@ void ASlashCharacter::BeginPlay()
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	const bool LEGACY = false;
-	if (LEGACY)
+	if (bLegacyInput)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Legacy Input"));
 		// Legacy Input
@@ -86,6 +85,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		PlayerInputComponent->BindAction(FName("Jump"), IE_Pressed, this, &ASlashCharacter::Jump);
 		PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter::EKeyPressed);
 		PlayerInputComponent->BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter::Attack);
+		PlayerInputComponent->BindAction(FName("Dodge"), IE_Pressed, this, &ASlashCharacter::Dodge);
 	}
 	else
 	{
@@ -98,7 +98,17 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump);
 			EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed);
 			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+			EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
 		}
+	}
+}
+
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->RegenerateStamina(DeltaTime);
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
 	}
 }
 
@@ -237,6 +247,21 @@ void ASlashCharacter::EKeyPressed()
 	}
 }
 
+void ASlashCharacter::Dodge()
+{
+	if (!IsUnoccupied()) return;
+
+	const float DodgeStaminaCost = Attributes->GetDodgeCost();
+
+	if (Attributes && SlashOverlay && HasEnoughStamina(DodgeStaminaCost))
+	{
+		PlayDodgeMontage();
+		ActionState = EActionState::EAS_Dodging;
+		Attributes->UseStamina(DodgeStaminaCost);
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void ASlashCharacter::Attack()
 {
 	Super::Attack();
@@ -255,6 +280,12 @@ bool ASlashCharacter::CanAttack()
 
 void ASlashCharacter::AttackEnd()
 {
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::DodgeEnd()
+{
+	Super::DodgeEnd();
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
@@ -339,6 +370,11 @@ void ASlashCharacter::HitReactEnd()
 bool ASlashCharacter::IsUnoccupied()
 {
 	return ActionState == EActionState::EAS_Unoccupied;
+}
+
+bool ASlashCharacter::HasEnoughStamina(const float StaminaCost)
+{
+	return Attributes && Attributes->GetStamina() > StaminaCost;
 }
 
 void ASlashCharacter::InitializeSlashOverlay()
