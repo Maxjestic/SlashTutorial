@@ -280,6 +280,7 @@ bool ASlashCharacter::CanAttack()
 
 void ASlashCharacter::AttackEnd()
 {
+	Super::AttackEnd();
 	ActionState = EActionState::EAS_Unoccupied;
 }
 

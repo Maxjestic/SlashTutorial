@@ -58,16 +58,9 @@ void AEnemy::Tick(float DeltaTime)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Warning, TEXT("TakeDamage"))
 	HandleDamage(DamageAmount);
 	CombatTarget = EventInstigator->GetPawn();
-	if (CanAttack()) //IsInsideAttackRadius()
-	{
-		StartAttackTimer(); //EEnemyState::EES_Attacking
-	}
-	else
-	{
-		ChaseTarget();
-	}
 	return DamageAmount;
 }
 
@@ -81,6 +74,7 @@ void AEnemy::Destroyed()
 
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
+	UE_LOG(LogTemp, Warning, TEXT("GetHit"))
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 	if(!IsDead()) ShowHealthBar();
 	ClearPatrolTimer();
@@ -88,6 +82,15 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 	StopAttackMontage();
+
+	if (CanAttack()) //IsInsideAttackRadius()
+	{
+		StartAttackTimer(); //EEnemyState::EES_Attacking
+	}
+	else if(!IsDead())
+	{
+		ChaseTarget();
+	}
 }
 
 bool AEnemy::CanAttack()
@@ -110,7 +113,9 @@ void AEnemy::Attack()
 
 void AEnemy::AttackEnd()
 {
+	Super::AttackEnd();
 	EnemyState = EEnemyState::EES_NoState;
+	
 	CheckCombatTarget();
 }
 
@@ -150,7 +155,7 @@ void AEnemy::SpawnDefaultWeapon()
 	if (World && WeaponClass)
 	{
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
-		DefaultWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		DefaultWeapon->Equip(GetMesh(), FName("WeaponSocket"), this, this);
 		EquippedWeapon = DefaultWeapon;
 	}
 }

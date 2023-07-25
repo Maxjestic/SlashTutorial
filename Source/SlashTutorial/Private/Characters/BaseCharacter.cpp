@@ -226,6 +226,7 @@ FVector ABaseCharacter::GetRotationWarpTarget()
 
 void ABaseCharacter::AttackEnd()
 {
+	EquippedWeapon->ClearIgnoreActors();
 }
 
 void ABaseCharacter::DodgeEnd()

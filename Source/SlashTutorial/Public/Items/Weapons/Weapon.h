@@ -24,6 +24,7 @@ public:
 	void DisableSphereCollision();
 	void PlayEquipSound();
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
+	void ClearIgnoreActors();
 
 	TArray<AActor*> IgnoreActors;
 
